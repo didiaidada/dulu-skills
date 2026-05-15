@@ -28,7 +28,7 @@ if [ ! -f "$CONFIG" ]; then
     "base_url": "http://127.0.0.1:8976",
     "opus_model": "moonshotai/kimi-k2.6",
     "model_flag": "opus"
-  },
+  }
 }
 CONFEOF
 fi
