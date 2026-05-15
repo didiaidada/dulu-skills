@@ -12,24 +12,24 @@ description: 切换 Claude Code 后端模型（moma）
 把整个 `ccmoma` 文件夹放到 `~/.claude/skills/` 下，然后配置脚本权限：
 
 ```bash
-chmod +x ~/.claude/skills/ccmoma/ccs.sh
+chmod +x ~/.claude/skills/ccmoma/ccmoma.sh
 ```
 
 ## 使用
 
 ```bash
-~/.claude/skills/ccmoma/ccs.sh init           # 首次配 API Key
-~/.claude/skills/ccmoma/ccs.sh glm           # 切到 BigModel（智谱）
-~/.claude/skills/ccmoma/ccs.sh glm glm-4.7   # 切到 BigModel 并指定模型
-~/.claude/skills/ccmoma/ccs.sh moma          # 切到 九天（自动启动本地代理）
-~/.claude/skills/ccmoma/ccs.sh moma deepseek/deepseek-v4-flash  # 切到 九天并指定模型
-~/.claude/skills/ccmoma/ccs.sh status        # 看当前配置
+~/.claude/skills/ccmoma/ccmoma.sh init           # 首次配 API Key
+~/.claude/skills/ccmoma/ccmoma.sh glm           # 切到 BigModel（智谱）
+~/.claude/skills/ccmoma/ccmoma.sh glm glm-4.7   # 切到 BigModel 并指定模型
+~/.claude/skills/ccmoma/ccmoma.sh moma          # 切到 九天（自动启动本地代理）
+~/.claude/skills/ccmoma/ccmoma.sh moma deepseek/deepseek-v4-flash  # 切到 九天并指定模型
+~/.claude/skills/ccmoma/ccmoma.sh status        # 看当前配置
 ```
 
 如果觉得路径太长，可以设置别名：
 
 ```bash
-alias ccmoma="~/.claude/skills/ccmoma/ccs.sh"
+alias ccmoma="~/.claude/skills/ccmoma/ccmoma.sh"
 ```
 
 ## 九天本地代理

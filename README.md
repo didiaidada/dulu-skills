@@ -31,7 +31,7 @@ npx skills add didiaidada/dulu-skills -l
 ```bash
 mkdir -p ~/.claude/skills
 cp -r ccmoma ~/.claude/skills/
-chmod +x ~/.claude/skills/ccmoma/ccs.sh
+chmod +x ~/.claude/skills/ccmoma/ccmoma.sh
 ```
 
 ## 技能
@@ -62,15 +62,15 @@ Claude Code 原生只支持 Anthropic 官方 API，要使用第三方兼容层�
 
 ```bash
 # 直接执行
-~/.claude/skills/ccmoma/ccs.sh init           # 首次配置 API Key
-~/.claude/skills/ccmoma/ccs.sh glm           # 切换到 BigModel（智谱）
-~/.claude/skills/ccmoma/ccs.sh glm glm-4.7   # 切换到 BigModel 并指定模型
-~/.claude/skills/ccmoma/ccs.sh moma          # 切换到 九天（自动启动本地代理）
-~/.claude/skills/ccmoma/ccs.sh moma deepseek/deepseek-v4-flash # 切换到 九天并指定模型
-~/.claude/skills/ccmoma/ccs.sh status        # 查看当前配置
+~/.claude/skills/ccmoma/ccmoma.sh init           # 首次配置 API Key
+~/.claude/skills/ccmoma/ccmoma.sh glm           # 切换到 BigModel（智谱）
+~/.claude/skills/ccmoma/ccmoma.sh glm glm-4.7   # 切换到 BigModel 并指定模型
+~/.claude/skills/ccmoma/ccmoma.sh moma          # 切换到 九天（自动启动本地代理）
+~/.claude/skills/ccmoma/ccmoma.sh moma deepseek/deepseek-v4-flash # 切换到 九天并指定模型
+~/.claude/skills/ccmoma/ccmoma.sh status        # 查看当前配置
 
 # 设置别名更方便
-alias ccmoma="~/.claude/skills/ccmoma/ccs.sh"
+alias ccmoma="~/.claude/skills/ccmoma/ccmoma.sh"
 ccmoma status
 ```
 
