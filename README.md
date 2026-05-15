@@ -40,6 +40,22 @@ chmod +x ~/.claude/skills/ccs/ccs.sh
 |------|------|
 | **ccs** | Claude Code 模型切换 — 一键切换 API 后端（BigModel / 九天）。支持指定模型，使用前需先运行 `init` 配置 API Key |
 
+### 背景
+
+`ccs` 是为了让 Claude Code 接入国内 LLM 后端（MOMA / 聚合 API）而写的切换工具。
+
+Claude Code 原生只支持 Anthropic 官方 API，要使用第三方兼容层需要修改环境变量 `ANTHROPIC_BASE_URL` 和 `ANTHROPIC_AUTH_TOKEN`。`ccs` 做的事情就是帮你一键写入这些配置到 `~/.claude/settings.json`。
+
+### 关于 jt-proxy
+
+`jt-proxy.py` 是一个本地代理，解决以下问题：
+
+- MOMA 等聚合 API 的端点格式与 Anthropic SDK 不完全兼容，需要中间层做协议转换
+- 某些 provider 需要自定义请求头或鉴权逻辑，Claude Code 原生不支持
+- 通过本地代理可统一管理超时、重试等策略
+
+`ccs moma` 会自动检测并启动 `jt-proxy.py`，无需手动操作。
+
 ## 使用方式
 
 安装后重启 Claude Code，即可通过 `/ccs` 或自然语言触发。
