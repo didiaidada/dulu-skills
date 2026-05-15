@@ -1,6 +1,6 @@
 ---
-name: ccs
-description: 切换 Claude Code 后端模型（BigModel / 九天）
+name: ccmoma
+description: 切换 Claude Code 后端模型（moma）
 ---
 
 # ccs - Claude Code 模型切换工具

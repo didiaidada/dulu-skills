@@ -11,7 +11,7 @@
 npx skills add didiaidada/dulu-skills -g --all
 
 # 安装单个技能
-npx skills add didiaidada/dulu-skills -g --skill ccs
+npx skills add didiaidada/dulu-skills -g --skill ccmoma
 
 # 查看仓库中有哪些技能
 npx skills add didiaidada/dulu-skills -l
@@ -30,21 +30,21 @@ npx skills add didiaidada/dulu-skills -l
 
 ```bash
 mkdir -p ~/.claude/skills
-cp -r ccs ~/.claude/skills/
-chmod +x ~/.claude/skills/ccs/ccs.sh
+cp -r ccmoma ~/.claude/skills/
+chmod +x ~/.claude/skills/ccmoma/ccs.sh
 ```
 
 ## 技能
 
 | 技能 | 说明 |
 |------|------|
-| **ccs** | Claude Code 模型切换 — 一键切换 API 后端（BigModel / 九天）。支持指定模型，使用前需先运行 `init` 配置 API Key |
+| **ccmoma** | Claude Code 模型切换 — 一键切换 API 后端（BigModel / 九天）。支持指定模型，使用前需先运行 `init` 配置 API Key |
 
 ### 背景
 
-`ccs` 是为了让 Claude Code 接入国内 LLM 后端（MOMA / 聚合 API）而写的切换工具。
+`ccmoma` 是为了让 Claude Code 接入国内 LLM 后端（MOMA / 聚合 API）而写的切换工具。
 
-Claude Code 原生只支持 Anthropic 官方 API，要使用第三方兼容层需要修改环境变量 `ANTHROPIC_BASE_URL` 和 `ANTHROPIC_AUTH_TOKEN`。`ccs` 做的事情就是帮你一键写入这些配置到 `~/.claude/settings.json`。
+Claude Code 原生只支持 Anthropic 官方 API，要使用第三方兼容层需要修改环境变量 `ANTHROPIC_BASE_URL` 和 `ANTHROPIC_AUTH_TOKEN`。`ccmoma` 做的事情就是帮你一键写入这些配置到 `~/.claude/settings.json`。
 
 ### 关于 jt-proxy
 
@@ -54,23 +54,23 @@ Claude Code 原生只支持 Anthropic 官方 API，要使用第三方兼容层�
 - 某些 provider 需要自定义请求头或鉴权逻辑，Claude Code 原生不支持
 - 通过本地代理可统一管理超时、重试等策略
 
-`ccs moma` 会自动检测并启动 `jt-proxy.py`，无需手动操作。
+`ccmoma moma` 会自动检测并启动 `jt-proxy.py`，无需手动操作。
 
 ## 使用方式
 
-安装后重启 Claude Code，即可通过 `/ccs` 或自然语言触发。
+安装后重启 Claude Code，即可通过 `/ccmoma` 或自然语言触发。
 
 ```bash
 # 直接执行
-~/.claude/skills/ccs/ccs.sh init           # 首次配置 API Key
-~/.claude/skills/ccs/ccs.sh glm           # 切换到 BigModel（智谱）
-~/.claude/skills/ccs/ccs.sh glm glm-4.7   # 切换到 BigModel 并指定模型
-~/.claude/skills/ccs/ccs.sh moma          # 切换到 九天（自动启动本地代理）
-~/.claude/skills/ccs/ccs.sh moma deepseek/deepseek-v4-flash # 切换到 九天并指定模型
-~/.claude/skills/ccs/ccs.sh status        # 查看当前配置
+~/.claude/skills/ccmoma/ccs.sh init           # 首次配置 API Key
+~/.claude/skills/ccmoma/ccs.sh glm           # 切换到 BigModel（智谱）
+~/.claude/skills/ccmoma/ccs.sh glm glm-4.7   # 切换到 BigModel 并指定模型
+~/.claude/skills/ccmoma/ccs.sh moma          # 切换到 九天（自动启动本地代理）
+~/.claude/skills/ccmoma/ccs.sh moma deepseek/deepseek-v4-flash # 切换到 九天并指定模型
+~/.claude/skills/ccmoma/ccs.sh status        # 查看当前配置
 
 # 设置别名更方便
-alias ccs="~/.claude/skills/ccs/ccs.sh"
+alias ccs="~/.claude/skills/ccmoma/ccs.sh"
 ccs status
 ```
 
