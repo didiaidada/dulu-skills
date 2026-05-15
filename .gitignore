@@ -1,0 +1,5 @@
+*
+!ccs/
+!ccs/**
+!README.md
+!.gitignore
