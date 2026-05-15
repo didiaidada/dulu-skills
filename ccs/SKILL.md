@@ -1,6 +1,6 @@
 ---
 name: ccs
-description: 切换 Claude Code 后端模型（BigModel / 九天 / 9Router）
+description: 切换 Claude Code 后端模型（BigModel / 九天）
 ---
 
 # ccs - Claude Code 模型切换工具
@@ -21,7 +21,6 @@ chmod +x ~/.claude/skills/ccs/ccs.sh
 ~/.claude/skills/ccs/ccs.sh init       # 首次配 API Key
 ~/.claude/skills/ccs/ccs.sh bm         # 切到 BigModel（智谱）
 ~/.claude/skills/ccs/ccs.sh jt         # 切到 九天（需先启动本地代理）
-~/.claude/skills/ccs/ccs.sh nr         # 切到 9Router
 ~/.claude/skills/ccs/ccs.sh status     # 看当前配置
 ```
 

@@ -28,12 +28,6 @@ if [ ! -f "$CONFIG" ]; then
     "opus_model": "moonshotai/kimi-k2.6",
     "model_flag": "opus"
   },
-  "nrouter": {
-    "api_key": "",
-    "base_url": "http://localhost:20128/v1",
-    "opus_model": "moonshotai/kimi-k2.6",
-    "model_flag": "opus"
-  }
 }
 CONFEOF
 fi
@@ -70,21 +64,6 @@ jiutian_env() {
 EOF
 }
 jiutian_model() { python3 -c "import json; print(json.load(open('$CONFIG'))['jiutian']['model_flag'])"; }
-
-nrouter_env() {
-  local key
-  key=$(python3 -c "import json; print(json.load(open('$CONFIG'))['nrouter']['api_key'])" 2>/dev/null)
-  cat <<EOF
-{
-  "ANTHROPIC_AUTH_TOKEN": "$key",
-  "ANTHROPIC_BASE_URL": "$(python3 -c "import json; print(json.load(open('$CONFIG'))['nrouter']['base_url'])")",
-  "API_TIMEOUT_MS": "3000000",
-  "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-  "ANTHROPIC_DEFAULT_OPUS_MODEL": "$(python3 -c "import json; print(json.load(open('$CONFIG'))['nrouter']['opus_model'])")"
-}
-EOF
-}
-nrouter_model() { python3 -c "import json; print(json.load(open('$CONFIG'))['nrouter']['model_flag'])"; }
 
 # --- 工具函数 ---
 switch_to() {
@@ -181,9 +160,6 @@ case "${1:-}" in
   jt|jiutian)
     switch_to "九天" "$(jiutian_env)" "$(jiutian_model)" "${2:-}"
     ;;
-  nr|nrouter|9r)
-    switch_to "9Router" "$(nrouter_env)" "$(nrouter_model)" "${2:-}"
-    ;;
   status|show|s)
     show_status
     ;;
@@ -194,7 +170,6 @@ case "${1:-}" in
     echo "  init            首次初始化 API Key"
     echo "  bm [model]      BigModel"
     echo "  jt [model]      九天 (须本地代理 jt-proxy)"
-    echo "  nr [model]      9Router"
     echo "  status          查看当前配置"
     ;;
 esac
