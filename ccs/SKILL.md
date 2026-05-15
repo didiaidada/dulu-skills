@@ -22,7 +22,7 @@ chmod +x ~/.claude/skills/ccs/ccs.sh
 ~/.claude/skills/ccs/ccs.sh glm           # 切到 BigModel（智谱）
 ~/.claude/skills/ccs/ccs.sh glm glm-4.7   # 切到 BigModel 并指定模型
 ~/.claude/skills/ccs/ccs.sh moma          # 切到 九天（自动启动本地代理）
-~/.claude/skills/ccs/ccs.sh moma moonshotai/kimi-k2.6  # 切到 九天并指定模型
+~/.claude/skills/ccs/ccs.sh moma deepseek/deepseek-v4-flash  # 切到 九天并指定模型
 ~/.claude/skills/ccs/ccs.sh status        # 看当前配置
 ```
 

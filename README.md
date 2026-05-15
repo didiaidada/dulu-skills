@@ -66,7 +66,7 @@ Claude Code 原生只支持 Anthropic 官方 API，要使用第三方兼容层�
 ~/.claude/skills/ccs/ccs.sh glm           # 切换到 BigModel（智谱）
 ~/.claude/skills/ccs/ccs.sh glm glm-4.7   # 切换到 BigModel 并指定模型
 ~/.claude/skills/ccs/ccs.sh moma          # 切换到 九天（自动启动本地代理）
-~/.claude/skills/ccs/ccs.sh moma moonshotai/kimi-k2.6 # 切换到 九天并指定模型
+~/.claude/skills/ccs/ccs.sh moma deepseek/deepseek-v4-flash # 切换到 九天并指定模型
 ~/.claude/skills/ccs/ccs.sh status        # 查看当前配置
 
 # 设置别名更方便
