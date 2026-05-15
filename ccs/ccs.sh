@@ -1,8 +1,8 @@
 #!/bin/bash
 # ccs - Claude Code API 配置切换工具
 # 用法:
-#   ccs bm              BigModel (需要先配置 BM_API_KEY)
-#   ccs jt [model]      九天 (需要先配置 JT_API_KEY + 本地代理)
+#   ccs glm             BigModel (需要先配置 BM_API_KEY)
+#   ccs moma [model]    九天 (MOMA) (需要先配置 JT_API_KEY + 本地代理)
 #   ccs init            首次初始化 API Key
 #   ccs status          查看当前配置
 
@@ -145,8 +145,8 @@ json.dump(c, open('$CONFIG','w'), indent=2)
   echo "初始化完成！配置保存在: $CONFIG"
   echo ""
   echo "使用方式:"
-  echo "  ccs bm              BigModel"
-  echo "  ccs jt [model]      九天"
+  echo "  ccs glm             BigModel"
+  echo "  ccs moma [model]    九天 (MOMA)"
 }
 
 # --- 主逻辑 ---
@@ -154,10 +154,10 @@ case "${1:-}" in
   init|setup)
     init_config
     ;;
-  bm|bigmodel)
+  glm|bigmodel)
     switch_to "BigModel" "$(bigmodel_env)" "$(bigmodel_model)" "${2:-}"
     ;;
-  jt|jiutian)
+  moma|jiutian)
     switch_to "九天" "$(jiutian_env)" "$(jiutian_model)" "${2:-}"
     ;;
   status|show|s)
@@ -168,8 +168,8 @@ case "${1:-}" in
     echo ""
     echo "命令:"
     echo "  init            首次初始化 API Key"
-    echo "  bm [model]      BigModel"
-    echo "  jt [model]      九天 (须本地代理 jt-proxy)"
+    echo "  glm [model]     BigModel(智谱)"
+    echo "  moma [model]    九天 (MOMA)"
     echo "  status          查看当前配置"
     ;;
 esac

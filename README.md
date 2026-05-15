@@ -47,8 +47,8 @@ chmod +x ~/.claude/skills/ccs/ccs.sh
 ```bash
 # 直接执行
 ~/.claude/skills/ccs/ccs.sh init       # 首次配置 API Key
-~/.claude/skills/ccs/ccs.sh bm         # 切换到 BigModel（智谱）
-~/.claude/skills/ccs/ccs.sh jt         # 切换到 九天（需启动本地代理）
+~/.claude/skills/ccs/ccs.sh glm        # 切换到 BigModel（智谱）
+~/.claude/skills/ccs/ccs.sh moma       # 切换到 九天（需启动本地代理）
 ~/.claude/skills/ccs/ccs.sh status     # 查看当前配置
 
 # 设置别名更方便
