@@ -8,6 +8,7 @@
 
 SETTINGS="$HOME/.claude/settings.json"
 CONFIG="$HOME/.claude/ccs-config.json"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # --- 读取或初始化用户配置 ---
 if [ ! -f "$CONFIG" ]; then
@@ -158,6 +159,18 @@ case "${1:-}" in
     switch_to "BigModel" "$(bigmodel_env)" "$(bigmodel_model)" "${2:-}"
     ;;
   moma|jiutian)
+    # 自动启动 jt-proxy（如果没运行）
+    if ! pgrep -f jt-proxy.py > /dev/null 2>&1; then
+      proxy_path="$SCRIPT_DIR/jt-proxy.py"
+      if [ ! -f "$proxy_path" ]; then
+        proxy_path="$HOME/.claude/skills/ccs/jt-proxy.py"
+      fi
+      if [ -f "$proxy_path" ]; then
+        nohup python3 "$proxy_path" > /dev/null 2>&1 &
+        sleep 1
+        echo "jt-proxy 已自动启动"
+      fi
+    fi
     switch_to "九天" "$(jiutian_env)" "$(jiutian_model)" "${2:-}"
     ;;
   status|show|s)
