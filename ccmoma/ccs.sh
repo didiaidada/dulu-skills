@@ -1,13 +1,13 @@
 #!/bin/bash
-# ccs - Claude Code API 配置切换工具
+# ccmoma - Claude Code API 配置切换工具
 # 用法:
-#   ccs glm             BigModel (需要先配置 BM_API_KEY)
-#   ccs moma [model]    九天 (MOMA) (需要先配置 JT_API_KEY + 本地代理)
-#   ccs init            首次初始化 API Key
-#   ccs status          查看当前配置
+#   ccmoma glm             BigModel (需要先配置 BM_API_KEY)
+#   ccmoma moma [model]    九天 (MOMA) (需要先配置 JT_API_KEY + 本地代理)
+#   ccmoma init            首次初始化 API Key
+#   ccmoma status          查看当前配置
 
 SETTINGS="$HOME/.claude/settings.json"
-CONFIG="$HOME/.claude/ccs-config.json"
+CONFIG="$HOME/.claude/ccmoma-config.json"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # --- 读取或初始化用户配置 ---
@@ -110,7 +110,7 @@ show_status() {
 }
 
 init_config() {
-  echo "=== ccs 首次初始化 ==="
+  echo "=== ccmoma 首次初始化 ==="
   echo ""
 
   # BigModel
@@ -138,7 +138,7 @@ json.dump(c, open('$CONFIG','w'), indent=2)
 "
     echo ""
     echo "九天还需要启动本地代理，执行:"
-    echo "  nohup python3 ~/bin/jt-proxy.py &"
+    echo "  nohup python3 ~/.claude/skills/ccmoma/jt-proxy.py &"
     echo "  （也可设置开机自启）"
   fi
 
@@ -146,8 +146,8 @@ json.dump(c, open('$CONFIG','w'), indent=2)
   echo "初始化完成！配置保存在: $CONFIG"
   echo ""
   echo "使用方式:"
-  echo "  ccs glm             BigModel"
-  echo "  ccs moma [model]    九天 (MOMA)"
+  echo "  ccmoma glm             BigModel"
+  echo "  ccmoma moma [model]    九天 (MOMA)"
 }
 
 # --- 主逻辑 ---
@@ -163,7 +163,7 @@ case "${1:-}" in
     if ! pgrep -f jt-proxy.py > /dev/null 2>&1; then
       proxy_path="$SCRIPT_DIR/jt-proxy.py"
       if [ ! -f "$proxy_path" ]; then
-        proxy_path="$HOME/.claude/skills/ccs/jt-proxy.py"
+        proxy_path="$HOME/.claude/skills/ccmoma/jt-proxy.py"
       fi
       if [ -f "$proxy_path" ]; then
         nohup python3 "$proxy_path" > /dev/null 2>&1 &
@@ -177,7 +177,7 @@ case "${1:-}" in
     show_status
     ;;
   *)
-    echo "用法: ccs <command>"
+    echo "用法: ccmoma <command>"
     echo ""
     echo "命令:"
     echo "  init            首次初始化 API Key"

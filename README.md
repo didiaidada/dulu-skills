@@ -70,8 +70,8 @@ Claude Code 原生只支持 Anthropic 官方 API，要使用第三方兼容层�
 ~/.claude/skills/ccmoma/ccs.sh status        # 查看当前配置
 
 # 设置别名更方便
-alias ccs="~/.claude/skills/ccmoma/ccs.sh"
-ccs status
+alias ccmoma="~/.claude/skills/ccmoma/ccs.sh"
+ccmoma status
 ```
 
 ## License
