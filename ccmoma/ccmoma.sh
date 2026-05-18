@@ -1,9 +1,10 @@
 #!/bin/bash
 # ccmoma - Claude Code API 配置切换工具
 # 用法:
-#   ccmoma glm             BigModel (需要先配置 BM_API_KEY)
-#   ccmoma moma [model]    九天 (MOMA) (需要先配置 JT_API_KEY + 本地代理)
-#   ccmoma init            首次初始化 API Key
+#   ccmoma init            首次初始化（保存当前 Key + 配置 moma）
+#   ccmoma <name>          切换到自定义 profile
+#   ccmoma glm [model]     BigModel
+#   ccmoma moma [model]    九天 (MOMA)
 #   ccmoma status          查看当前配置
 
 SETTINGS="$HOME/.claude/settings.json"
@@ -12,7 +13,6 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # --- 读取或初始化用户配置 ---
 if [ ! -f "$CONFIG" ]; then
-  # 创建默认配置
   cat > "$CONFIG" <<'CONFEOF'
 {
   "bigmodel": {
@@ -28,10 +28,20 @@ if [ ! -f "$CONFIG" ]; then
     "base_url": "http://127.0.0.1:8976",
     "opus_model": "moonshotai/kimi-k2.6",
     "model_flag": "opus"
-  }
+  },
+  "custom_profiles": {}
 }
 CONFEOF
 fi
+
+# 确保 custom_profiles 字段存在（兼容旧配置）
+python3 -c "
+import json
+c = json.load(open('$CONFIG'))
+if 'custom_profiles' not in c:
+    c['custom_profiles'] = {}
+    json.dump(c, open('$CONFIG','w'), indent=2)
+"
 
 # --- 配置定义 ---
 bigmodel_env() {
@@ -66,6 +76,30 @@ EOF
 }
 jiutian_model() { python3 -c "import json; print(json.load(open('$CONFIG'))['jiutian']['model_flag'])"; }
 
+# --- 自定义 profile ---
+custom_profile_env() {
+  local name="$1"
+  python3 -c "
+import json
+c = json.load(open('$CONFIG'))
+p = c['custom_profiles']['$name']
+json.dump({
+    'ANTHROPIC_AUTH_TOKEN': p['api_key'],
+    'ANTHROPIC_BASE_URL': p['base_url'],
+    'API_TIMEOUT_MS': '3000000',
+    'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC': '1'
+}, sys.stdout)
+" 2>/dev/null
+}
+
+custom_profile_names() {
+  python3 -c "import json; print(' '.join(json.load(open('$CONFIG')).get('custom_profiles',{}).keys()))" 2>/dev/null
+}
+
+has_custom_profile() {
+  python3 -c "import json,sys; sys.exit(0 if '$1' in json.load(open('$CONFIG')).get('custom_profiles',{}) else 1)" 2>/dev/null
+}
+
 # --- 工具函数 ---
 switch_to() {
   local profile="$1"
@@ -99,21 +133,69 @@ with open('$SETTINGS', 'w') as f:
 }
 
 show_status() {
-  local base_url model
+  local base_url model opus
   base_url=$(python3 -c "import json; print(json.load(open('$SETTINGS'))['env'].get('ANTHROPIC_BASE_URL',''))")
   model=$(python3 -c "import json; print(json.load(open('$SETTINGS')).get('model',''))")
-  local opus=$(python3 -c "import json; print(json.load(open('$SETTINGS'))['env'].get('ANTHROPIC_DEFAULT_OPUS_MODEL',''))")
+  opus=$(python3 -c "import json; print(json.load(open('$SETTINGS'))['env'].get('ANTHROPIC_DEFAULT_OPUS_MODEL',''))")
 
   echo "当前配置:"
   echo "  Base URL : $base_url"
   echo "  Model    : $model → $opus"
+
+  local profiles
+  profiles=$(custom_profile_names)
+  if [ -n "$profiles" ]; then
+    echo ""
+    echo "自定义 profiles:"
+    for name in $profiles; do
+      local p_url
+      p_url=$(python3 -c "import json; print(json.load(open('$CONFIG'))['custom_profiles']['$name']['base_url'])")
+      echo "  $name → $p_url"
+    done
+  fi
 }
 
 init_config() {
-  echo "=== ccmoma 首次初始化 ==="
+  echo "=== ccmoma 初始化 ==="
   echo ""
 
-  # BigModel
+  # 1. 检测并保存当前 Key
+  local cur_key cur_url
+  cur_key=$(python3 -c "
+import json
+s = json.load(open('$SETTINGS'))
+print(s.get('env',{}).get('ANTHROPIC_AUTH_TOKEN',''))
+" 2>/dev/null)
+  cur_url=$(python3 -c "
+import json
+s = json.load(open('$SETTINGS'))
+print(s.get('env',{}).get('ANTHROPIC_BASE_URL','https://api.anthropic.com'))
+" 2>/dev/null)
+
+  if [ -n "$cur_key" ]; then
+    echo "检测到当前 API Key: ${cur_key:0:8}...${cur_key: -4}"
+    echo "  Base URL: $cur_url"
+    echo ""
+    read -p "给当前 Key 起个名字用于切换 (默认 anthropic): " key_name
+    key_name="${key_name:-anthropic}"
+
+    python3 -c "
+import json
+c = json.load(open('$CONFIG'))
+c.setdefault('custom_profiles', {})['$key_name'] = {
+    'api_key': '$cur_key',
+    'base_url': '$cur_url'
+}
+json.dump(c, open('$CONFIG','w'), indent=2)
+"
+    echo "  ✓ 已保存为 profile: $key_name"
+    echo ""
+  else
+    echo "未检测到当前 API Key，跳过保存。"
+    echo ""
+  fi
+
+  # 2. BigModel
   read -p "BigModel API Key (留空跳过): " bm_key
   if [ -n "$bm_key" ]; then
     python3 -c "
@@ -127,7 +209,7 @@ json.dump(c, open('$CONFIG','w'), indent=2)
 
   echo ""
 
-  # 九天
+  # 3. 九天
   read -p "九天 API Key (留空跳过): " jt_key
   if [ -n "$jt_key" ]; then
     python3 -c "
@@ -146,8 +228,10 @@ json.dump(c, open('$CONFIG','w'), indent=2)
   echo "初始化完成！配置保存在: $CONFIG"
   echo ""
   echo "使用方式:"
-  echo "  ccmoma glm             BigModel"
+  echo "  ccmoma <name>          切换到自定义 profile"
+  echo "  ccmoma glm [model]     BigModel"
   echo "  ccmoma moma [model]    九天 (MOMA)"
+  echo "  ccmoma status          查看所有配置"
 }
 
 # --- 主逻辑 ---
@@ -177,12 +261,25 @@ case "${1:-}" in
     show_status
     ;;
   *)
-    echo "用法: ccmoma <command>"
-    echo ""
-    echo "命令:"
-    echo "  init            首次初始化 API Key"
-    echo "  glm [model]     BigModel(智谱)"
-    echo "  moma [model]    九天 (MOMA)"
-    echo "  status          查看当前配置"
+    # 尝试匹配自定义 profile
+    if has_custom_profile "${1:-}" 2>/dev/null; then
+      env_data=$(custom_profile_env "$1")
+      switch_to "$1" "$env_data" "$1" "${2:-}"
+    else
+      echo "用法: ccmoma <command>"
+      echo ""
+      echo "命令:"
+      echo "  init            初始化（保存当前 Key + 配置 moma）"
+      echo "  glm [model]     BigModel(智谱)"
+      echo "  moma [model]    九天 (MOMA)"
+      echo "  status          查看当前配置"
+      echo "  <name>          切换到自定义 profile"
+      local profiles
+      profiles=$(custom_profile_names)
+      if [ -n "$profiles" ]; then
+        echo ""
+        echo "已保存的 profiles: $profiles"
+      fi
+    fi
     ;;
 esac
