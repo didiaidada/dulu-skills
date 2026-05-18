@@ -12,7 +12,7 @@ description: 切换 Claude Code 后端模型（moma）
 本 skill 可安装在 `~/.claude/skills/ccmoma/` 或 `~/.agents/skills/ccmoma/`，以下用 `$CCMOMA_DIR` 指代实际安装路径。Claude 执行时应先探测实际路径：
 
 ```bash
-CCMOMA_DIR=$(test -d ~/.agents/skills/ccmoma && echo ~/.agents/skills/ccmoma || echo ~/.claude/skills/ccmoma)
+CCMOMA_DIR=$(test -d ~/.claude/skills/ccmoma && echo ~/.claude/skills/ccmoma || echo ~/.agents/skills/ccmoma)
 ```
 
 ## 安装

@@ -26,7 +26,7 @@ if [ ! -f "$CONFIG" ]; then
   "jiutian": {
     "api_key": "",
     "base_url": "http://127.0.0.1:8976",
-    "opus_model": "moonshotai/kimi-k2.6",
+    "opus_model": "deepseek/deepseek-v4-flash",
     "model_flag": "opus"
   },
   "custom_profiles": {}
