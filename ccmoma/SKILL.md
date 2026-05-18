@@ -64,6 +64,16 @@ nohup python3 ~/.claude/skills/ccmoma/jt-proxy.py &
 
 运行 `init` 命令，按提示输入 BigModel 和/或九天的 API Key。
 
+## 安装后引导
+
+skill 安装完成后，Claude 应主动提示用户运行初始化：
+
+```
+~/.claude/skills/ccmoma/ccmoma.sh init
+```
+
+如果用户尚未配置任何 API Key，主动建议运行 init。如果用户已有配置文件（`~/.claude/ccmoma-config.json`），则跳过提示。
+
 ## 依赖
 
 - Python 3
