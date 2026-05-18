@@ -7,29 +7,37 @@ description: 切换 Claude Code 后端模型（moma）
 
 一键切换 Claude Code 的 API 后端和模型。
 
-## 安装
+## 路径说明
 
-把整个 `ccmoma` 文件夹放到 `~/.claude/skills/` 下，然后配置脚本权限：
+本 skill 可安装在 `~/.claude/skills/ccmoma/` 或 `~/.agents/skills/ccmoma/`，以下用 `$CCMOMA_DIR` 指代实际安装路径。Claude 执行时应先探测实际路径：
 
 ```bash
-chmod +x ~/.claude/skills/ccmoma/ccmoma.sh
+CCMOMA_DIR=$(test -d ~/.agents/skills/ccmoma && echo ~/.agents/skills/ccmoma || echo ~/.claude/skills/ccmoma)
+```
+
+## 安装
+
+安装后配置脚本权限：
+
+```bash
+chmod +x $CCMOMA_DIR/ccmoma.sh
 ```
 
 ## 使用
 
 ```bash
-~/.claude/skills/ccmoma/ccmoma.sh init           # 首次配 API Key
-~/.claude/skills/ccmoma/ccmoma.sh glm           # 切到 BigModel（智谱）
-~/.claude/skills/ccmoma/ccmoma.sh glm glm-4.7   # 切到 BigModel 并指定模型
-~/.claude/skills/ccmoma/ccmoma.sh moma          # 切到 九天（自动启动本地代理）
-~/.claude/skills/ccmoma/ccmoma.sh moma deepseek/deepseek-v4-flash  # 切到 九天并指定模型
-~/.claude/skills/ccmoma/ccmoma.sh status        # 看当前配置
+$CCMOMA_DIR/ccmoma.sh init           # 首次配 API Key
+$CCMOMA_DIR/ccmoma.sh glm           # 切到 BigModel（智谱）
+$CCMOMA_DIR/ccmoma.sh glm glm-4.7   # 切到 BigModel 并指定模型
+$CCMOMA_DIR/ccmoma.sh moma          # 切到 九天（自动启动本地代理）
+$CCMOMA_DIR/ccmoma.sh moma deepseek/deepseek-v4-flash  # 切到 九天并指定模型
+$CCMOMA_DIR/ccmoma.sh status        # 看当前配置
 ```
 
 如果觉得路径太长，可以设置别名：
 
 ```bash
-alias ccmoma="~/.claude/skills/ccmoma/ccmoma.sh"
+alias ccmoma="$CCMOMA_DIR/ccmoma.sh"
 ```
 
 ## 九天本地代理
@@ -37,7 +45,7 @@ alias ccmoma="~/.claude/skills/ccmoma/ccmoma.sh"
 `ccmoma moma` 依赖本地代理 `jt-proxy.py`（skill 目录已自带）。切换到 moma 时脚本会自动启动代理，也支持手动启动：
 
 ```bash
-nohup python3 ~/.claude/skills/ccmoma/jt-proxy.py &
+nohup python3 $CCMOMA_DIR/jt-proxy.py &
 ```
 
 ## 工作原理
@@ -69,7 +77,7 @@ nohup python3 ~/.claude/skills/ccmoma/jt-proxy.py &
 skill 安装完成后，Claude 应主动提示用户运行初始化：
 
 ```
-~/.claude/skills/ccmoma/ccmoma.sh init
+$CCMOMA_DIR/ccmoma.sh init
 ```
 
 如果用户尚未配置任何 API Key，主动建议运行 init。如果用户已有配置文件（`~/.claude/ccmoma-config.json`），则跳过提示。
