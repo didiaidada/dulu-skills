@@ -28,7 +28,7 @@ def extract_text(content):
 
 def anthropic_to_openai(body):
     """将 Anthropic /messages 请求转为 OpenAI /chat/completions 格式"""
-    model = body.get("model", "moonshotai/kimi-k2.6")
+    model = body.get("model", "deepseek/deepseek-v4-flash")
     max_tokens = body.get("max_tokens", 8192)
     stream = body.get("stream", False)
 

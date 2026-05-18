@@ -119,11 +119,10 @@ check_api_key() {
     -d '{"model":"test","max_tokens":1,"messages":[{"role":"user","content":"hi"}]}' \
     --connect-timeout 5 --max-time 10 2>/dev/null)
 
-  # 2xx 或 4xx（auth ok but model error）都算 key 有效
-  # 401/403 = key 无效, 000 = 连接失败
+  # 401 = key 无效, 403 = 模型无权限但 key 有效, 000 = 连接失败
   if [ "$status" = "000" ]; then
     echo "CONNECTION_FAILED"
-  elif [ "$status" = "401" ] || [ "$status" = "403" ]; then
+  elif [ "$status" = "401" ]; then
     echo "INVALID"
   else
     echo "OK"
