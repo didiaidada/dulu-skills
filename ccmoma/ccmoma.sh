@@ -246,11 +246,25 @@ print(s.get('env',{}).get('ANTHROPIC_BASE_URL','https://api.anthropic.com'))
   if [ -n "$cur_key" ]; then
     echo "检测到当前 API Key: ${cur_key:0:8}...${cur_key: -4}"
     echo "  Base URL: $cur_url"
-    echo ""
-    read -p "给当前 Key 起个名字用于切换 (默认 anthropic): " key_name
-    key_name="${key_name:-anthropic}"
 
-    python3 -c "
+    # 根据 base_url 自动识别 provider
+    local bm_url
+    bm_url=$(python3 -c "import json; print(json.load(open('$CONFIG'))['bigmodel']['base_url'])")
+    if [ "$cur_url" = "$bm_url" ]; then
+      # 自动填入 BigModel
+      python3 -c "
+import json
+c = json.load(open('$CONFIG'))
+c['bigmodel']['api_key'] = '$cur_key'
+json.dump(c, open('$CONFIG','w'), indent=2)
+"
+      echo "  ✓ 自动识别为 BigModel，已保存"
+    else
+      echo ""
+      read -p "给当前 Key 起个名字用于切换 (默认 anthropic): " key_name
+      key_name="${key_name:-anthropic}"
+
+      python3 -c "
 import json
 c = json.load(open('$CONFIG'))
 c.setdefault('custom_profiles', {})['$key_name'] = {
@@ -259,40 +273,50 @@ c.setdefault('custom_profiles', {})['$key_name'] = {
 }
 json.dump(c, open('$CONFIG','w'), indent=2)
 "
-    echo "  ✓ 已保存为 profile: $key_name"
+      echo "  ✓ 已保存为 profile: $key_name"
+    fi
     echo ""
   else
     echo "未检测到当前 API Key，跳过保存。"
     echo ""
   fi
 
-  # 2. BigModel
-  read -p "BigModel API Key (留空跳过): " bm_key
-  if [ -n "$bm_key" ]; then
-    python3 -c "
+  # 2. BigModel（如果还没配过 key 才提示）
+  local cur_bm_key
+  cur_bm_key=$(python3 -c "import json; print(json.load(open('$CONFIG'))['bigmodel']['api_key'])" 2>/dev/null)
+  if [ -z "$cur_bm_key" ]; then
+    read -p "BigModel API Key (留空跳过): " bm_key
+    if [ -n "$bm_key" ]; then
+      python3 -c "
 import json
 c = json.load(open('$CONFIG'))
 c['bigmodel']['api_key'] = '$bm_key'
 json.dump(c, open('$CONFIG','w'), indent=2)
 "
-    echo "  BigModel API Key ✓ 已保存"
+      echo "  BigModel API Key ✓ 已保存"
+    fi
   fi
 
   echo ""
 
-  # 3. 九天
-  read -p "九天 API Key (留空跳过): " jt_key
-  if [ -n "$jt_key" ]; then
-    python3 -c "
+  # 3. 九天（如果还没配过 key 才提示）
+  local cur_jt_key
+  cur_jt_key=$(python3 -c "import json; print(json.load(open('$CONFIG'))['jiutian']['api_key'])" 2>/dev/null)
+  if [ -z "$cur_jt_key" ]; then
+    read -p "九天 API Key (留空跳过): " jt_key
+    if [ -n "$jt_key" ]; then
+      python3 -c "
 import json
 c = json.load(open('$CONFIG'))
 c['jiutian']['api_key'] = '$jt_key'
 json.dump(c, open('$CONFIG','w'), indent=2)
 "
-    echo ""
-    echo "九天还需要启动本地代理，执行:"
-    echo "  nohup python3 ~/.claude/skills/ccmoma/jt-proxy.py &"
-    echo "  （也可设置开机自启）"
+      echo "  九天 API Key ✓ 已保存"
+      echo ""
+      echo "九天还需要启动本地代理，执行:"
+      echo "  nohup python3 ~/.claude/skills/ccmoma/jt-proxy.py &"
+      echo "  （也可设置开机自启）"
+    fi
   fi
 
   echo ""
