@@ -311,10 +311,6 @@ c['jiutian']['api_key'] = '$jt_key'
 json.dump(c, open('$CONFIG','w'), indent=2)
 "
       echo "  九天 API Key ✓ 已保存"
-      echo ""
-      echo "九天还需要启动本地代理，执行:"
-      echo "  nohup python3 ~/.claude/skills/ccmoma/jt-proxy.py &"
-      echo "  （也可设置开机自启）"
     fi
   fi
 
