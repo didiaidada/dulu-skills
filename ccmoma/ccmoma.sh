@@ -100,6 +100,36 @@ has_custom_profile() {
   python3 -c "import json,sys; sys.exit(0 if '$1' in json.load(open('$CONFIG')).get('custom_profiles',{}) else 1)" 2>/dev/null
 }
 
+# --- 检查 API Key 是否可用 ---
+check_api_key() {
+  local base_url="$1"
+  local api_key="$2"
+
+  if [ -z "$api_key" ]; then
+    echo "MISSING"
+    return
+  fi
+
+  local status
+  status=$(curl -s -o /dev/null -w "%{http_code}" \
+    -X POST "$base_url/v1/messages" \
+    -H "Content-Type: application/json" \
+    -H "x-api-key: $api_key" \
+    -H "anthropic-version: 2023-06-01" \
+    -d '{"model":"test","max_tokens":1,"messages":[{"role":"user","content":"hi"}]}' \
+    --connect-timeout 5 --max-time 10 2>/dev/null)
+
+  # 2xx 或 4xx（auth ok but model error）都算 key 有效
+  # 401/403 = key 无效, 000 = 连接失败
+  if [ "$status" = "000" ]; then
+    echo "CONNECTION_FAILED"
+  elif [ "$status" = "401" ] || [ "$status" = "403" ]; then
+    echo "INVALID"
+  else
+    echo "OK"
+  fi
+}
+
 # --- 工具函数 ---
 switch_to() {
   local profile="$1"
@@ -117,6 +147,47 @@ json.dump(d, sys.stdout)
     profile="$profile ($custom_model)"
   fi
 
+  # 提取即将使用的 key 和 base_url 用于检查
+  local target_key target_url
+  target_key=$(echo "$env_data" | python3 -c "import sys,json; print(json.load(sys.stdin).get('ANTHROPIC_AUTH_TOKEN',''))" 2>/dev/null)
+  target_url=$(echo "$env_data" | python3 -c "import sys,json; print(json.load(sys.stdin).get('ANTHROPIC_BASE_URL',''))" 2>/dev/null)
+
+  # 检查 key 是否存在
+  if [ -z "$target_key" ]; then
+    echo "❌ $profile 未配置 API Key"
+    echo "   请先运行: ccmoma init"
+    return 1
+  fi
+
+  # 测试 key 是否可用
+  echo "⏳ 测试 $profile API Key ..."
+  local check_result
+  check_result=$(check_api_key "$target_url" "$target_key")
+
+  if [ "$check_result" = "CONNECTION_FAILED" ]; then
+    echo "❌ 无法连接到 $target_url"
+    echo "   如果是九天，确认 jt-proxy 是否在运行"
+    return 1
+  elif [ "$check_result" = "INVALID" ]; then
+    echo "❌ API Key 无效（401/403）"
+    echo "   请检查配置: ccmoma init"
+    return 1
+  fi
+
+  # 备份当前配置（用于回滚）
+  local backup_env backup_model
+  backup_env=$(python3 -c "
+import json
+s = json.load(open('$SETTINGS'))
+print(json.dumps(s.get('env',{})))
+" 2>/dev/null)
+  backup_model=$(python3 -c "
+import json
+s = json.load(open('$SETTINGS'))
+print(s.get('model',''))
+" 2>/dev/null)
+
+  # 执行切换
   python3 -c "
 import sys, json
 
@@ -129,7 +200,7 @@ s['model'] = '$model_val'
 with open('$SETTINGS', 'w') as f:
     json.dump(s, f, indent=2, ensure_ascii=False)
 "
-  echo "已切换到: $profile"
+  echo "✓ 已切换到: $profile"
 }
 
 show_status() {
@@ -243,7 +314,7 @@ case "${1:-}" in
     switch_to "BigModel" "$(bigmodel_env)" "$(bigmodel_model)" "${2:-}"
     ;;
   moma|jiutian)
-    # 自动启动 jt-proxy（如果没运行）
+    # 先启动 jt-proxy（如果没运行）
     if ! pgrep -f jt-proxy.py > /dev/null 2>&1; then
       proxy_path="$SCRIPT_DIR/jt-proxy.py"
       if [ ! -f "$proxy_path" ]; then
@@ -255,7 +326,10 @@ case "${1:-}" in
         echo "jt-proxy 已自动启动"
       fi
     fi
-    switch_to "九天" "$(jiutian_env)" "$(jiutian_model)" "${2:-}"
+    if ! switch_to "九天" "$(jiutian_env)" "$(jiutian_model)" "${2:-}"; then
+      # 切换失败，无需额外处理（switch_to 没写入 settings）
+      :
+    fi
     ;;
   status|show|s)
     show_status
@@ -264,7 +338,9 @@ case "${1:-}" in
     # 尝试匹配自定义 profile
     if has_custom_profile "${1:-}" 2>/dev/null; then
       env_data=$(custom_profile_env "$1")
-      switch_to "$1" "$env_data" "$1" "${2:-}"
+      if ! switch_to "$1" "$env_data" "$1" "${2:-}"; then
+        :
+      fi
     else
       echo "用法: ccmoma <command>"
       echo ""
